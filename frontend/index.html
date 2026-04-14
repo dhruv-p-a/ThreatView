@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreatView - Enterprise Intelligence</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsVectorMap dependencies -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+</head>
+<body>
+    <header>
+        <h1>ThreatView Dashboard</h1>
+        <p>Advanced Real-time Threat Intelligence & Monitoring</p>
+    </header>
+
+    <main>
+        <!-- 🚨 Brand Alerts Section -->
+        <section class="card brand-alerts hidden" id="brand-alerts-section">
+            <h2 style="color: #dc3545;">🚨 Brand Protection Alerts</h2>
+            <div id="brand-alerts-list"></div>
+        </section>
+
+        <!-- Search Section -->
+        <section class="card">
+            <h2>Analyze Indicator</h2>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Enter IP or Domain...">
+                <button id="search-button" onclick="searchThreat()">Analyze</button>
+            </div>
+            <div id="search-result" class="result-box hidden"></div>
+        </section>
+
+        <!-- Visualization Grid -->
+        <div class="dashboard-grid">
+            <section class="card">
+                <h2>Threat Type Distribution</h2>
+                <div class="chart-container"><canvas id="threatChart"></canvas></div>
+            </section>
+
+            <section class="card">
+                <h2>Global Threat Map</h2>
+                <div id="world-map" style="height: 300px;"></div>
+            </section>
+        </div>
+
+        <!-- Dashboard Controls -->
+        <section class="dashboard-controls">
+            <h2>Live Intelligence Feed</h2>
+            <div id="loading-indicator" class="spinner hidden"></div>
+            <span id="refresh-msg">Updating live...</span>
+        </section>
+
+        <!-- Table Section -->
+        <section class="card table-card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Source</th>
+                            <th>Threat Category</th>
+                            <th>Country</th>
+                        </tr>
+                    </thead>
+                    <tbody id="threat-table-body">
+                        <tr><td colspan="5">Initializing feed...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 ThreatView Platform | Security Engineering Intern Project</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
