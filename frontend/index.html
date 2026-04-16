@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThreatView - Enterprise Intelligence</title>
+    <title>ThreatView - Advanced Security Analytics</title>
     <link rel="stylesheet" href="style.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- jsVectorMap dependencies -->
+    <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
 </head>
 <body>
-    <!-- Sticky Alert Banner -->
+    <!-- Sticky Notification Banner -->
     <div id="global-alert" class="alert-banner hidden">
         <div class="alert-content">
             <span class="alert-icon">🚨</span>
-            <span class="alert-message">Critical threats detected in recent synchronization!</span>
+            <span class="alert-message">Critical malicious activity detected in recent sync!</span>
             <button class="close-alert" onclick="closeAlert()">&times;</button>
         </div>
     </div>
@@ -25,77 +25,80 @@
     <header>
         <div class="header-container">
             <h1>ThreatView</h1>
-            <p>Next-Gen Aggregated Intelligence Dashboard</p>
+            <p>Enterprise Threat Intelligence & Monitoring</p>
         </div>
     </header>
 
     <main>
-        <!-- Brand Protection Alerts -->
+        <!-- Brand Protection Notifications -->
         <section class="card brand-alerts hidden" id="brand-alerts-section">
             <div class="card-header">
-                <h2>🚨 Brand Impersonation Alerts</h2>
+                <h2>🚨 Brand Protection Alerts</h2>
             </div>
             <div id="brand-alerts-list"></div>
         </section>
 
-        <!-- Analyze Indicator Section -->
+        <!-- Threat Analyzer -->
         <section class="card search-card">
             <div class="control-header">
-                <h2>Analyze Security Indicator</h2>
-                <div class="rbac-container">
-                    <span class="rbac-label">Data Access:</span>
+                <h2>Analyze Indicator</h2>
+                <div class="tier-selector">
+                    <span class="tier-label">Access Level:</span>
                     <select id="role-select" onchange="refreshAll()">
-                        <option value="free">Free Tier (24h)</option>
-                        <option value="pro" selected>Pro Tier (Full)</option>
+                        <option value="free">Standard (24h)</option>
+                        <option value="pro" selected>Enterprise (Full)</option>
                     </select>
                 </div>
             </div>
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="Enter IP Address, Domain, or URL...">
+                <input type="text" id="search-input" placeholder="Enter IP, Domain, or full URL...">
                 <button id="search-button" onclick="searchThreat()">Analyze</button>
             </div>
             <div id="search-result" class="result-box hidden"></div>
         </section>
 
-        <!-- Visualization Grid -->
+        <!-- Visualization Dashboard -->
         <div class="dashboard-grid">
-            <section class="card visualization-card">
-                <h2>Threat Type Trends</h2>
+            <section class="card viz-card">
+                <h2>Category Distribution</h2>
                 <div class="chart-container">
                     <canvas id="threatChart"></canvas>
                 </div>
             </section>
 
-            <section class="card visualization-card">
-                <h2>Global Threat Heatmap</h2>
+            <section class="card viz-card">
+                <h2>Origin Heatmap</h2>
                 <div id="world-map"></div>
             </section>
         </div>
 
-        <!-- Dashboard Table Header -->
+        <!-- Live Feed Section -->
         <div class="section-header">
-            <h2>Real-time Intelligence Feed</h2>
-            <div class="live-status">
+            <h2>Live Intelligence Feed</h2>
+            <div class="feed-status">
+                <span class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span id="refresh-status">LIVE</span>
+                </span>
                 <div id="loading-indicator" class="spinner hidden"></div>
-                <span id="refresh-status">Live</span>
             </div>
         </div>
 
-        <!-- Intelligence Feed Table -->
-        <section class="card table-card">
-            <div class="table-container">
+        <!-- Intelligence Data Table -->
+        <section class="card table-container-card">
+            <div class="table-scroll">
                 <table id="threat-table">
                     <thead>
                         <tr>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Source</th>
                             <th>Classification</th>
-                            <th>Indicator Value</th>
-                            <th>Intel Source</th>
-                            <th>Threat Category</th>
-                            <th>Origin</th>
+                            <th>Country</th>
                         </tr>
                     </thead>
                     <tbody id="threat-table-body">
-                        <tr><td colspan="5" class="table-loading">Establishing connection to secure feeds...</td></tr>
+                        <tr><td colspan="5" class="table-placeholder">Initializing secure connection...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -103,9 +106,7 @@
     </main>
 
     <footer>
-        <div class="footer-content">
-            <p>&copy; 2023 ThreatView Intelligence Platform | Enterprise Cybersecurity Project</p>
-        </div>
+        <p>&copy; 2023 ThreatView Intelligence | Production Build v1.6.0</p>
     </footer>
 
     <script src="script.js"></script>
