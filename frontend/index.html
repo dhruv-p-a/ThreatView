@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThreatView - Advanced Security Intelligence</title>
+    <title>ThreatView - Enterprise Intelligence</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsVectorMap dependencies -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
@@ -13,43 +15,43 @@
 <body>
     <!-- Sticky Alert Banner -->
     <div id="global-alert" class="alert-banner hidden">
-        <span class="alert-icon">⚠️</span>
-        <span class="alert-message">High-risk malicious activity detected in recent feed.</span>
-        <button class="close-alert" onclick="closeAlert()">&times;</button>
+        <div class="alert-content">
+            <span class="alert-icon">🚨</span>
+            <span class="alert-message">Critical threats detected in recent synchronization!</span>
+            <button class="close-alert" onclick="closeAlert()">&times;</button>
+        </div>
     </div>
 
     <header>
-        <h1>ThreatView</h1>
-        <p>Production-Grade Threat Intelligence Dashboard</p>
+        <div class="header-container">
+            <h1>ThreatView</h1>
+            <p>Next-Gen Aggregated Intelligence Dashboard</p>
+        </div>
     </header>
 
     <main>
         <!-- Brand Protection Alerts -->
         <section class="card brand-alerts hidden" id="brand-alerts-section">
             <div class="card-header">
-                <span class="pulse-red"></span>
-                <h2>🚨 Brand Protection Alerts</h2>
+                <h2>🚨 Brand Impersonation Alerts</h2>
             </div>
             <div id="brand-alerts-list"></div>
         </section>
 
-        <!-- Analyze Indicator -->
-        <section class="card">
+        <!-- Analyze Indicator Section -->
+        <section class="card search-card">
             <div class="control-header">
-                <h2>Analyze Indicator</h2>
+                <h2>Analyze Security Indicator</h2>
                 <div class="rbac-container">
-                    <div class="rbac-info">
-                        <span class="info-icon">i</span>
-                        <span class="info-tooltip" id="role-tooltip">Free users: last 24h | Pro users: full history</span>
-                    </div>
+                    <span class="rbac-label">Data Access:</span>
                     <select id="role-select" onchange="refreshAll()">
-                        <option value="free">Free Tier</option>
-                        <option value="pro" selected>Pro Tier</option>
+                        <option value="free">Free Tier (24h)</option>
+                        <option value="pro" selected>Pro Tier (Full)</option>
                     </select>
                 </div>
             </div>
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="e.g. 1.2.3.4, malware.com, or suspicious-url.com">
+                <input type="text" id="search-input" placeholder="Enter IP Address, Domain, or URL...">
                 <button id="search-button" onclick="searchThreat()">Analyze</button>
             </div>
             <div id="search-result" class="result-box hidden"></div>
@@ -57,43 +59,43 @@
 
         <!-- Visualization Grid -->
         <div class="dashboard-grid">
-            <section class="card chart-card">
-                <h2>Threat Type Distribution</h2>
+            <section class="card visualization-card">
+                <h2>Threat Type Trends</h2>
                 <div class="chart-container">
                     <canvas id="threatChart"></canvas>
                 </div>
             </section>
 
-            <section class="card map-card">
-                <h2>Global Threat Origins</h2>
+            <section class="card visualization-card">
+                <h2>Global Threat Heatmap</h2>
                 <div id="world-map"></div>
             </section>
         </div>
 
-        <!-- Dashboard Header -->
+        <!-- Dashboard Table Header -->
         <div class="section-header">
-            <h2>Live Intelligence Feed</h2>
-            <div class="status-indicator">
+            <h2>Real-time Intelligence Feed</h2>
+            <div class="live-status">
                 <div id="loading-indicator" class="spinner hidden"></div>
                 <span id="refresh-status">Live</span>
             </div>
         </div>
 
-        <!-- Table Section -->
+        <!-- Intelligence Feed Table -->
         <section class="card table-card">
             <div class="table-container">
                 <table id="threat-table">
                     <thead>
                         <tr>
-                            <th>Type</th>
-                            <th>Value</th>
-                            <th>Source</th>
+                            <th>Classification</th>
+                            <th>Indicator Value</th>
+                            <th>Intel Source</th>
                             <th>Threat Category</th>
-                            <th>Country</th>
+                            <th>Origin</th>
                         </tr>
                     </thead>
                     <tbody id="threat-table-body">
-                        <tr><td colspan="5" class="placeholder-text">Synchronizing intelligence feed...</td></tr>
+                        <tr><td colspan="5" class="table-loading">Establishing connection to secure feeds...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -101,7 +103,9 @@
     </main>
 
     <footer>
-        <p>&copy; 2023 ThreatView Platform | Cybersecurity Engineering Division</p>
+        <div class="footer-content">
+            <p>&copy; 2023 ThreatView Intelligence Platform | Enterprise Cybersecurity Project</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>

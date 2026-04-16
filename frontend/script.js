@@ -2,6 +2,7 @@ const API_BASE_URL = 'https://threatview-x92w.onrender.com';
 let threatChart;
 let worldMap;
 let refreshInterval;
+let autoHideTimer;
 
 // ISO Country Code Mapping
 const countryToCode = {
@@ -15,7 +16,7 @@ const countryToCode = {
  * Initialization
  */
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("ThreatView Production v1.4.0 Initialized");
+    console.log("ThreatView Production v1.5.0 Initialized");
 
     // Initial Load
     refreshAll();
@@ -36,11 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
  * Orchestrates all data fetching
  */
 async function refreshAll() {
-    const role = document.getElementById('role-select')?.value || 'free';
+    const role = document.getElementById('role-select')?.value || 'pro';
     const statusText = document.getElementById('refresh-status');
     const loader = document.getElementById('loading-indicator');
 
-    if (statusText) statusText.innerText = "Updating...";
+    if (statusText) statusText.innerText = "UPDATING...";
     if (loader) loader.classList.remove('hidden');
 
     try {
@@ -50,10 +51,10 @@ async function refreshAll() {
             loadBrandAlerts(),
             loadCountryStats()
         ]);
-        if (statusText) statusText.innerText = "Live";
+        if (statusText) statusText.innerText = "LIVE";
     } catch (err) {
         console.error("Refresh Error:", err);
-        if (statusText) statusText.innerText = "Connection Error";
+        if (statusText) statusText.innerText = "OFFLINE";
     } finally {
         if (loader) loader.classList.add('hidden');
     }
@@ -74,32 +75,41 @@ async function fetchRecentThreats(role = 'free') {
         tableBody.innerHTML = '';
 
         if (data.length > 0) {
-            // Check for high-risk threats in recent data
-            const highRiskExists = data.some(t => t.threat_type === "Phishing" || t.threat_type.includes("Malware"));
+            // Alert logic: Show only if high-risk threats exist
+            const highRiskFound = data.some(t => t.threat_type === "Phishing" || t.threat_type.includes("Malware"));
 
-            if (highRiskExists && alertBanner) {
+            if (highRiskFound && alertBanner && alertBanner.classList.contains('hidden')) {
                 alertBanner.classList.remove('hidden');
+
+                // Auto-hide after 10 seconds
+                if (autoHideTimer) clearTimeout(autoHideTimer);
+                autoHideTimer = setTimeout(() => {
+                    alertBanner.classList.add('hidden');
+                }, 10000);
             }
 
             data.forEach(t => {
-                const isHighRisk = t.threat_type === "Phishing" || t.threat_type.includes("Malware");
                 const row = document.createElement('tr');
-                if (isHighRisk) row.classList.add('row-high-risk');
+
+                // Row Highlighting logic
+                if (t.threat_type === "Phishing") {
+                    row.classList.add('row-phishing');
+                } else if (t.threat_type.includes("Malware")) {
+                    row.classList.add('row-malware');
+                }
 
                 row.innerHTML = `
                     <td><span class="badge">${t.type}</span></td>
-                    <td style="word-break: break-all; font-family: monospace; font-weight: 500;">${t.value}</td>
+                    <td style="word-break: break-all; font-family: monospace; font-weight: 600;">${t.value}</td>
                     <td><strong>${t.source}</strong></td>
-                    <td style="color: ${isHighRisk ? '#dc3545' : '#2d3436'}; font-weight: 600;">${t.threat_type}</td>
-                    <td><strong>${t.country || 'Unknown'}</strong></td>
+                    <td style="font-weight: 700; color: ${t.threat_type === 'Phishing' ? '#dc3545' : '#1e293b'}">${t.threat_type}</td>
+                    <td><img src="https://flagcdn.com/16x12/${(countryToCode[t.country] || 'un').toLowerCase()}.png" style="margin-right:8px"> ${t.country || 'Unknown'}</td>
                 `;
                 tableBody.appendChild(row);
             });
-        } else {
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No data available for the selected tier.</td></tr>';
         }
     } catch (err) {
-        tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">⚠️ Error connecting to Intelligence API.</td></tr>';
+        if(tableBody) tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Establishing secure connection...</td></tr>';
     }
 }
 
@@ -115,17 +125,12 @@ async function loadBrandAlerts() {
 
         if (data.length > 0) {
             section.classList.remove('hidden');
-            list.innerHTML = data.map(t => {
-                const color = t.threat_type === "Phishing" ? "var(--error-color)" : "var(--brand-purple)";
-                return `
-                    <div class="brand-alert-item" style="border-color: ${color}; background: ${color}08;">
-                        <span style="color: ${color}; font-weight: 800;">[ALERT]</span>
-                        Brand asset <strong>${t.value}</strong> targeted via <strong>${t.threat_type}</strong> on ${t.source}.
-                    </div>
-                `;
-            }).join('');
-        } else {
-            section.classList.add('hidden');
+            list.innerHTML = data.map(t => `
+                <div class="brand-alert-item" style="border-left:6px solid #6f42c1; background:#f5f3ff; padding:15px; border-radius:8px; margin-bottom:12px;">
+                    🚨 <strong style="color:#5b21b6;">[BRAND ALERT]</strong>
+                    Indicator <strong>${t.value}</strong> identified on <strong>${t.source}</strong> as <strong>${t.threat_type}</strong>.
+                </div>
+            `).join('');
         }
     } catch (e) {}
 }
@@ -146,24 +151,40 @@ async function updateStats() {
             data: {
                 labels: ['Phishing', 'Malware', 'Other'],
                 datasets: [{
-                    label: 'Threat Volume',
                     data: [stats.phishing, stats.malware, stats.other],
                     backgroundColor: ['#dc3545', '#fd7e14', '#28a745'],
-                    borderRadius: 8
+                    borderRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: { duration: 1500, easing: 'easeOutQuart' },
+                animation: { duration: 1200, easing: 'easeOutElastic' },
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    // Show numbers on top of bars
+                    tooltip: { enabled: true }
                 },
                 scales: {
-                    y: { beginAtZero: true, grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
                     x: { grid: { display: false } }
                 }
-            }
+            },
+            plugins: [{
+                afterDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach((bar, index) => {
+                            const data = dataset.data[index];
+                            ctx.fillStyle = '#475569';
+                            ctx.textAlign = 'center';
+                            ctx.font = 'bold 12px Inter';
+                            ctx.fillText(data, bar.x, bar.y - 10);
+                        });
+                    });
+                }
+            }]
         });
     } catch (e) {}
 }
@@ -185,14 +206,13 @@ async function loadCountryStats() {
             worldMap = new jsVectorMap({
                 selector: '#world-map',
                 map: 'world',
-                zoomButtons: true,
                 visualizeData: {
-                    scale: ['#f1f5f9', '#dc3545'], // Subtle blue-grey to deep red
+                    scale: ['#f1f5f9', '#fd7e14', '#dc3545'], // Gray -> Orange -> Red
                     values: mapData
                 },
                 onRegionTooltipShow(event, tooltip, code) {
                     const count = mapData[code] || 0;
-                    tooltip.text(`${tooltip.text()} | Threats: ${count}`);
+                    tooltip.text(`<b>${tooltip.text()}</b><br>Detected Threats: ${count}`);
                 }
             });
         } else if (worldMap) {
@@ -209,7 +229,7 @@ async function searchThreat() {
     const resultBox = document.getElementById('search-result');
     if (!val) return;
 
-    resultBox.innerHTML = '<div class="searching">🔍 Cross-referencing indicator...</div>';
+    resultBox.innerHTML = '<div style="text-align:center">🔍 Cross-referencing against global feeds...</div>';
     resultBox.classList.remove('hidden', 'malicious', 'safe');
     resultBox.style.display = 'block';
 
@@ -220,27 +240,26 @@ async function searchThreat() {
         if (data.status === 'Malicious') {
             resultBox.className = 'result-box malicious';
             resultBox.innerHTML = `
-                <h3>⚠️ Malicious Activity Detected</h3>
-                <p><strong>Type:</strong> ${data.threat_type}</p>
-                <p><strong>Source:</strong> ${data.source}</p>
-                <p><strong>First Seen:</strong> ${new Date(data.detected_at).toLocaleString()}</p>
+                <h3>⚠️ Malicious Indicator Verified</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+                    <div><strong>Classification:</strong><br>${data.type}</div>
+                    <div><strong>Threat Category:</strong><br>${data.threat_type}</div>
+                    <div><strong>Intelligence Source:</strong><br>${data.source}</div>
+                    <div><strong>Detection Date:</strong><br>${new Date(data.detected_at).toLocaleDateString()}</div>
+                </div>
             `;
         } else {
             resultBox.className = 'result-box safe';
             resultBox.innerHTML = `
-                <h3>✅ No Threats Detected</h3>
-                <p>Indicator <strong>${val}</strong> was not found in our active intelligence feeds.</p>
+                <h3>✅ Indicator Appears Safe</h3>
+                <p>No active threats matching <strong>${val}</strong> were found in our current intelligence repositories.</p>
             `;
         }
-    } catch (e) {
-        resultBox.innerHTML = '<p style="color:red">Analyzer Offline. Try again later.</p>';
-    }
+    } catch (e) { resultBox.innerHTML = '<p style="color:red">Analyzer Error. Please check connectivity.</p>'; }
 }
 
-/**
- * UI Helper: Close Top Alert
- */
 function closeAlert() {
     const banner = document.getElementById('global-alert');
     if (banner) banner.classList.add('hidden');
+    if (autoHideTimer) clearTimeout(autoHideTimer);
 }
