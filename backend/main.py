@@ -6,6 +6,7 @@ from sqlalchemy import func
 import uvicorn
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
+from datetime import datetime, timedelta
 
 # Local imports
 from database import engine, get_db, Base
@@ -39,7 +40,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="ThreatView API",
     description="A centralized dashboard for real-time threat intelligence.",
-    version="1.1.0",
+    version="1.2.0",
     lifespan=lifespan
 )
 
@@ -62,10 +63,22 @@ def read_root():
     }
 
 @app.get("/threats")
-def get_threats(db: Session = Depends(get_db), limit: int = 50):
-    """Returns the latest threats from the database"""
-    threats = db.query(Threat).order_by(Threat.created_at.desc()).limit(limit).all()
-    return threats
+def get_threats(role: str = Query("free"), db: Session = Depends(get_db)):
+    """
+    Returns threat data based on user role (RBAC).
+    Free: Last 24 hours only.
+    Pro: Full historical data.
+    """
+    query = db.query(Threat).order_by(Threat.created_at.desc())
+
+    if role == "free":
+        # Filter for data within the last 24 hours
+        time_threshold = datetime.utcnow() - timedelta(hours=24)
+        query = query.filter(Threat.created_at >= time_threshold)
+        return query.limit(50).all()
+
+    # Pro role returns all data (limit 200 for performance)
+    return query.limit(200).all()
 
 @app.get("/search")
 def search_threat(value: str = Query(...), db: Session = Depends(get_db)):
@@ -105,7 +118,5 @@ def get_country_stats(db: Session = Depends(get_db)):
     return {country: count for country, count in results}
 
 if __name__ == "__main__":
-    # Ensure we use PORT env var for Render
     port = int(os.environ.get("PORT", 8080))
-    print(f"Launching ThreatView Backend on http://127.0.0.1:{port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
