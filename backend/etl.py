@@ -28,16 +28,24 @@ def send_email_alert(threat):
         from sendgrid.helpers.mail import Mail
 
         message = Mail(
-            from_email='security@threatview.app',
-            to_emails='admin@mycompany.com',
-            subject='⚠️ Urgent: Threat Detected',
-            plain_text_content=f"Threat Indicator: {threat.value}\nType: {threat.threat_type}\nSource: {threat.source}\nDate: {threat.created_at}"
+            from_email='alerts@threatview.app',
+            to_emails='security-team@mycompany.com', # Change to your alert email
+            subject='🚨 ThreatView Alert: Malicious Activity Detected',
+            plain_text_content=(
+                f"Threat Details:\n"
+                f"----------------\n"
+                f"Indicator: {threat.value}\n"
+                f"Type: {threat.type}\n"
+                f"Category: {threat.threat_type}\n"
+                f"Source: {threat.source}\n"
+                f"Detected At: {threat.created_at} UTC\n"
+            )
         )
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         sg.send(message)
-        logger.info(f"Email alert sent for {threat.value}")
+        logger.info(f"Email alert successfully sent for {threat.value}")
     except Exception as e:
-        logger.error(f"Failed to send email: {e}")
+        logger.error(f"Failed to send email alert: {e}")
 
 def get_country_from_ip(ip):
     """
@@ -113,7 +121,7 @@ def run_etl():
         # Check if already exists to avoid duplication
         exists = db.query(Threat).filter(Threat.value == entry['value']).first()
         if not exists:
-            # Add country if missing (for test data or new live data)
+            # Add country if missing
             if entry.get('type') == "IP" and entry.get('country') == "Unknown":
                 entry['country'] = get_country_from_ip(entry['value'])
 
@@ -123,8 +131,11 @@ def run_etl():
             new_threat = Threat(**entry, created_at=datetime.datetime.utcnow())
             db.add(new_threat)
 
-            # Send alert if critical
-            if entry.get('threat_type') == "Phishing" or entry.get('brand_match'):
+            # --- Trigger logic for Email Alert ---
+            # Trigger if threat is Phishing, contains Malware, or is a Brand match
+            if (entry.get('threat_type') == "Phishing" or
+                "Malware" in entry.get('threat_type') or
+                entry.get('brand_match')):
                 send_email_alert(new_threat)
 
     db.commit()
