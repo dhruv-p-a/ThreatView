@@ -18,15 +18,29 @@
     </header>
 
     <main>
+        <!-- 🚨 Global Alert Banner -->
+        <div id="global-alert" class="alert-banner hidden">
+            ⚠️ New high-risk malicious activity detected in the latest intelligence feed!
+        </div>
+
         <!-- 🚨 Brand Alerts Section -->
         <section class="card brand-alerts hidden" id="brand-alerts-section">
             <h2 style="color: #dc3545;">🚨 Brand Protection Alerts</h2>
             <div id="brand-alerts-list"></div>
         </section>
 
-        <!-- Search Section -->
+        <!-- Search & Control Section -->
         <section class="card">
-            <h2>Analyze Indicator</h2>
+            <div class="control-header">
+                <h2>Analyze Indicator</h2>
+                <div class="rbac-control">
+                    <label for="role-select">Access Tier:</label>
+                    <select id="role-select" onchange="refreshAll()">
+                        <option value="free">Free (24h)</option>
+                        <option value="pro" selected>Pro (History)</option>
+                    </select>
+                </div>
+            </div>
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Enter IP or Domain...">
                 <button id="search-button" onclick="searchThreat()">Analyze</button>
