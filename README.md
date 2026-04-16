@@ -1,87 +1,63 @@
-# ThreatView - Threat Intelligence Dashboard
+# ThreatView - Enterprise Threat Intelligence Dashboard
 
-ThreatView is a full-stack web application designed to help users identify malicious IP addresses, domains, and URLs by aggregating data from open-source threat intelligence feeds.
+ThreatView is a centralized platform designed to analyze malicious activity by aggregating data from multiple global threat intelligence feeds. This project serves as a comprehensive tool for security analysts to monitor, search, and visualize Indicators of Compromise (IoCs) in real-time.
 
-## Features
-- **Real-time Search:** Instantly check if an indicator (IP/Domain) is known to be malicious.
-- **Threat Dashboard:** View a live feed of the latest threats ingested from AlienVault OTX and PhishTank.
-- **Automated ETL:** A background scheduler fetches and normalizes data every hour.
-- **Simple UI:** A clean, responsive dashboard built with vanilla HTML, CSS, and JS.
+## 🚀 Key Features
+- **Automated ETL Pipeline:** Robust data ingestion engine that synchronizes data every hour from multiple sources.
+- **Searchable IoC Database:** High-performance lookup system for IP addresses, Domains, and URLs.
+- **Global Threat Map:** Professional interactive visualization highlighting threat origins by country with a heatmap effect.
+- **Real-time Distribution Chart:** Visual breakdown of threat categories (Phishing vs Malware vs Others) using Chart.js.
+- **Brand Protection:** Real-time monitoring and alerting for impersonation of corporate domains.
+- **Automated Email Notifications:** Instant alerts for critical security events via SendGrid API integration.
+- **Role-Based Access Control (RBAC):** Tiered data access model:
+  - **Free Tier:** Access to data from the last 24 hours.
+  - **Pro Tier:** Unlimited access to historical threat intelligence.
 
-## Tech Stack
-- **Backend:** Python 3.10+, FastAPI, SQLAlchemy, APScheduler.
-- **Database:** SQLite.
-- **Frontend:** HTML5, CSS3, JavaScript (ES6+).
+## 📡 Intelligence Sources
+- **AlienVault OTX:** Leverages community-powered IP and Domain reputation pulses.
+- **PhishTank:** Integrates verified, real-time phishing URL intelligence.
 
-## Project Structure
+## 🛠 Tech Stack
+- **Backend:** Python (FastAPI), SQLAlchemy (ORM), SQLite (Database), APScheduler (Task Scheduling).
+- **Frontend:** Vanilla HTML5, CSS3 (Modern Flex/Grid), JavaScript (ES6+), Chart.js, jsVectorMap.
+- **Infrastructure:**
+  - **Backend Hosting:** Render
+  - **Frontend Hosting:** Vercel
+  - **Version Control:** Git & GitHub
+
+## 📁 Project Structure
 ```text
 threatview/
 ├── backend/
-│   ├── main.py          # FastAPI application & Scheduler
-│   ├── database.py      # SQLAlchemy configuration
-│   ├── models.py        # Database schema
-│   ├── etl.py           # Data Ingestion scripts
-│   └── requirements.txt # Python dependencies
-└── frontend/
-    ├── index.html       # Main UI page
-    ├── style.css        # Styling
-    └── script.js        # Frontend logic
+│   ├── main.py          # FastAPI application, API endpoints & RBAC logic
+│   ├── database.py      # SQLAlchemy configuration & SQLite connection
+│   ├── models.py        # Database schema & Threat models
+│   ├── etl.py           # Ingestion logic, Geolocation & Email alerts
+│   └── requirements.txt # Project dependencies
+├── frontend/
+│   ├── index.html       # Enterprise Intelligence Dashboard UI
+│   ├── style.css        # Professional styling & animations
+│   └── script.js        # Dynamic data rendering & API integration
+└── README.md            # Project documentation
 ```
 
-## Setup Instructions
-
-### 1. Backend Setup
-1. Navigate to the backend directory:
+## 🔑 Setup & Installation
+1. **Clone the repository:**
    ```bash
+   git clone https://github.com/dhruv-p-a/ThreatView.git
    cd threatview/backend
    ```
-2. Create a virtual environment (optional but recommended):
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
+2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
-4. Run the backend server:
+3. **Environment Configuration:**
+   - Set `SENDGRID_API_KEY` for email alerts.
+   - Configure `MONITORED_DOMAINS` in `etl.py` for Brand Protection.
+4. **Run the application:**
    ```bash
    python main.py
    ```
-   *The server will start on `http://127.0.0.1:8000`. On first run, it will automatically pull initial data (ETL).*
 
-### 2. Frontend Setup
-1. Since the frontend is static HTML/JS, you can simply open `frontend/index.html` in any modern web browser.
-2. Alternatively, use a "Live Server" extension if you're using VS Code.
-3. Ensure the backend is running so the frontend can fetch data.
-
-## Example API Responses
-
-### GET `/threats`
-```json
-[
-  {
-    "id": 1,
-    "type": "URL",
-    "value": "http://malicious-site.com/login",
-    "source": "PhishTank",
-    "threat_type": "Phishing",
-    "created_at": "2023-10-27T10:00:00"
-  }
-]
-```
-
-### GET `/search?value=1.2.3.4`
-```json
-{
-  "status": "Malicious",
-  "type": "IP",
-  "source": "AlienVault OTX",
-  "threat_type": "Botnet Activity",
-  "detected_at": "2023-10-27T09:45:00"
-}
-```
-
-## Notes
-- **OTX API Key:** For better data, register at [AlienVault OTX](https://otx.alienvault.com/) and add your API key in `etl.py`.
-- **Database:** The SQLite file `threats.db` will be created automatically in the `backend` folder.
+## 🛡 Security Intern Project
+Developed as part of a Cybersecurity Software Engineering internship, focusing on ETL processes, data normalization, and actionable intelligence visualization.
