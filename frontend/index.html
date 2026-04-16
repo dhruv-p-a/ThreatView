@@ -3,46 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThreatView - Enterprise Intelligence</title>
+    <title>ThreatView - Advanced Security Intelligence</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- jsVectorMap dependencies -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
 </head>
 <body>
+    <!-- Sticky Alert Banner -->
+    <div id="global-alert" class="alert-banner hidden">
+        <span class="alert-icon">⚠️</span>
+        <span class="alert-message">High-risk malicious activity detected in recent feed.</span>
+        <button class="close-alert" onclick="closeAlert()">&times;</button>
+    </div>
+
     <header>
-        <h1>ThreatView Dashboard</h1>
-        <p>Advanced Real-time Threat Intelligence & Monitoring</p>
+        <h1>ThreatView</h1>
+        <p>Production-Grade Threat Intelligence Dashboard</p>
     </header>
 
     <main>
-        <!-- 🚨 Global Alert Banner -->
-        <div id="global-alert" class="alert-banner hidden">
-            ⚠️ New high-risk malicious activity detected in the latest intelligence feed!
-        </div>
-
-        <!-- 🚨 Brand Alerts Section -->
+        <!-- Brand Protection Alerts -->
         <section class="card brand-alerts hidden" id="brand-alerts-section">
-            <h2 style="color: #dc3545;">🚨 Brand Protection Alerts</h2>
+            <div class="card-header">
+                <span class="pulse-red"></span>
+                <h2>🚨 Brand Protection Alerts</h2>
+            </div>
             <div id="brand-alerts-list"></div>
         </section>
 
-        <!-- Search & Control Section -->
+        <!-- Analyze Indicator -->
         <section class="card">
             <div class="control-header">
                 <h2>Analyze Indicator</h2>
-                <div class="rbac-control">
-                    <label for="role-select">Access Tier:</label>
+                <div class="rbac-container">
+                    <div class="rbac-info">
+                        <span class="info-icon">i</span>
+                        <span class="info-tooltip" id="role-tooltip">Free users: last 24h | Pro users: full history</span>
+                    </div>
                     <select id="role-select" onchange="refreshAll()">
-                        <option value="free">Free (24h)</option>
-                        <option value="pro" selected>Pro (History)</option>
+                        <option value="free">Free Tier</option>
+                        <option value="pro" selected>Pro Tier</option>
                     </select>
                 </div>
             </div>
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="Enter IP or Domain...">
+                <input type="text" id="search-input" placeholder="e.g. 1.2.3.4, malware.com, or suspicious-url.com">
                 <button id="search-button" onclick="searchThreat()">Analyze</button>
             </div>
             <div id="search-result" class="result-box hidden"></div>
@@ -50,28 +57,32 @@
 
         <!-- Visualization Grid -->
         <div class="dashboard-grid">
-            <section class="card">
+            <section class="card chart-card">
                 <h2>Threat Type Distribution</h2>
-                <div class="chart-container"><canvas id="threatChart"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="threatChart"></canvas>
+                </div>
             </section>
 
-            <section class="card">
-                <h2>Global Threat Map</h2>
-                <div id="world-map" style="height: 300px;"></div>
+            <section class="card map-card">
+                <h2>Global Threat Origins</h2>
+                <div id="world-map"></div>
             </section>
         </div>
 
-        <!-- Dashboard Controls -->
-        <section class="dashboard-controls">
+        <!-- Dashboard Header -->
+        <div class="section-header">
             <h2>Live Intelligence Feed</h2>
-            <div id="loading-indicator" class="spinner hidden"></div>
-            <span id="refresh-msg">Updating live...</span>
-        </section>
+            <div class="status-indicator">
+                <div id="loading-indicator" class="spinner hidden"></div>
+                <span id="refresh-status">Live</span>
+            </div>
+        </div>
 
         <!-- Table Section -->
         <section class="card table-card">
             <div class="table-container">
-                <table>
+                <table id="threat-table">
                     <thead>
                         <tr>
                             <th>Type</th>
@@ -82,7 +93,7 @@
                         </tr>
                     </thead>
                     <tbody id="threat-table-body">
-                        <tr><td colspan="5">Initializing feed...</td></tr>
+                        <tr><td colspan="5" class="placeholder-text">Synchronizing intelligence feed...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -90,7 +101,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2023 ThreatView Platform | Security Engineering Intern Project</p>
+        <p>&copy; 2023 ThreatView Platform | Cybersecurity Engineering Division</p>
     </footer>
 
     <script src="script.js"></script>
